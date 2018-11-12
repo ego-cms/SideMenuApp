@@ -11,6 +11,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MenuViewController">
             <connections>
+                <outlet property="MenuTableView" destination="AzK-eP-Qfg" id="Pip-Ix-Bkq"/>
                 <outlet property="view" destination="2" id="RRd-Eg-VrN"/>
             </connections>
         </placeholder>
@@ -18,7 +19,22 @@
         <view contentMode="scaleToFill" id="2">
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="AzK-eP-Qfg">
+                    <rect key="frame" x="0.0" y="220" width="375" height="227"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="227" id="1WK-QE-fO6"/>
+                    </constraints>
+                </tableView>
+            </subviews>
             <color key="backgroundColor" red="0.1144804421" green="1" blue="0.2460114186" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="AzK-eP-Qfg" secondAttribute="trailing" id="bQ7-Vi-lHX"/>
+                <constraint firstItem="AzK-eP-Qfg" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="eg7-j0-vac"/>
+                <constraint firstItem="AzK-eP-Qfg" firstAttribute="centerY" secondItem="2" secondAttribute="centerY" id="kUy-Hy-1rR"/>
+            </constraints>
+            <point key="canvasLocation" x="138.40000000000001" y="152.47376311844079"/>
         </view>
     </objects>
 </document>

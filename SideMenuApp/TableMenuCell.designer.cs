@@ -1,4 +1,4 @@
-﻿// WARNING
+// WARNING
 //
 // This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
@@ -9,17 +9,17 @@ using System.CodeDom.Compiler;
 
 namespace SideMenuApp
 {
-	[Register ("MenuViewController")]
-	partial class MenuViewController
+	[Register ("TableMenuCell")]
+	partial class TableMenuCell
 	{
 		[Outlet]
-		UIKit.UITableView MenuTableView { get; set; }
+		UIKit.UILabel Name { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (MenuTableView != null) {
-				MenuTableView.Dispose ();
-				MenuTableView = null;
+			if (Name != null) {
+				Name.Dispose ();
+				Name = null;
 			}
 		}
 	}

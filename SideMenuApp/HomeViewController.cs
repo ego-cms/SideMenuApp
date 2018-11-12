@@ -5,9 +5,9 @@ using SideMenuApp.SideMenu;
 
 namespace SideMenuApp
 {
-    public partial class MainViewController : UIViewController
+    public partial class HomeViewController : BaseViewController
     {
-        protected MainViewController(IntPtr handle) : base(handle)
+        protected HomeViewController(IntPtr handle) : base(handle)
         {
             // Note: this .ctor should not contain any initialization logic.
         }
@@ -16,10 +16,6 @@ namespace SideMenuApp
         {
             base.ViewDidLoad();
             // Perform any additional setup after loading the view, typically from a nib.
-            PresentButton.TouchUpInside += (object sender, EventArgs e) =>
-            {
-                PresentViewController(SideMenuManager.Instance.MenuController, true, null);
-            };
         }
 
         public override void DidReceiveMemoryWarning()

@@ -9,18 +9,12 @@ using System.CodeDom.Compiler;
 
 namespace SideMenuApp
 {
-	[Register ("MainViewController")]
-	partial class MainViewController
+	[Register ("SaleViewController")]
+	partial class SaleViewController
 	{
-		[Outlet]
-		UIKit.UIButton PresentButton { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (PresentButton != null) {
-				PresentButton.Dispose ();
-				PresentButton = null;
-			}
 		}
 	}
 }
