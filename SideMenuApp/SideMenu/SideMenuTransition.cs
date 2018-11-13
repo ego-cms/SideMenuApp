@@ -6,13 +6,15 @@ using UIKit;
 
 namespace SideMenuApp.SideMenu
 {
-    public class SideMenuTransition : NSObject, IUIViewControllerTransitioningDelegate, IUIViewControllerAnimatedTransitioning
+    public class SideMenuTransition : UIPercentDrivenInteractiveTransition, IUIViewControllerTransitioningDelegate, IUIViewControllerAnimatedTransitioning
     {
         private const float _targetViewControllerOffset = 0.5f;
         private const float _targetViewControllerInitialScale = 1.0f;
         private const float _targetViewControllerEndScale = 0.8f;
         private double TransitionDurationTime { get; set; } = 0.5f;
         private UIView _originalSuperview;
+        private UIView _gestureRecognizerView;
+        bool _panGestureIsActive;
 
         /// <summary>
         /// ViewController which starts current transition
@@ -68,11 +70,11 @@ namespace SideMenuApp.SideMenu
             {
                 container.UserInteractionEnabled = true;
                 IsMenuOpen = true;
+                InitGestureRecognizerView(toViewController.View, container);
                 transitionContext.CompleteTransition(true);
             });
 
             CATransaction.Commit();
-
         }
 
         private void HideMenu(IUIViewControllerContextTransitioning transitionContext, UIView container, UIViewController fromViewController, UIViewController toViewController)
@@ -82,19 +84,52 @@ namespace SideMenuApp.SideMenu
 
             container.AddSubview(menuView);
             container.AddSubview(mainView);
-            UIView.Animate(TransitionDurationTime, () =>
+            //Need separate handling when interactive transition
+            if (_panGestureIsActive)
             {
-                mainView.Transform = CGAffineTransform.MakeIdentity();
-            }, () =>
+                CATransaction.Begin();
+                UIView.Animate(TransitionDurationTime, TransitionDurationTime, UIViewAnimationOptions.CurveLinear, () =>
+                {
+                    mainView.Transform = CGAffineTransform.MakeIdentity();
+                }, () =>
+                {
+                    if (transitionContext.TransitionWasCancelled)
+                    {
+                        transitionContext.CompleteTransition(false);
+                        container.UserInteractionEnabled = true;
+                        container.BringSubviewToFront(_gestureRecognizerView);
+                    }
+                    else
+                    {
+                        HideMenuComplete(transitionContext, container, menuView, mainView);
+                    }
+                });
+                CATransaction.Commit();
+            }
+            else
             {
-                container.UserInteractionEnabled = true;
-                _originalSuperview.Add(mainView);
-                _originalSuperview = null;
-                MainViewController = null;
-                IsMenuOpen = false;
-                transitionContext.CompleteTransition(true);
-                menuView.RemoveFromSuperview();
-            });
+                UIView.Animate(TransitionDurationTime, () =>
+                {
+                    mainView.Transform = CGAffineTransform.MakeIdentity();
+                }, () =>
+                {
+                    HideMenuComplete(transitionContext, container, menuView, mainView);
+                });
+            }
+
+        }
+
+        private void HideMenuComplete(IUIViewControllerContextTransitioning transitionContext, UIView container, UIView menuView, UIView mainView)
+        {
+            container.UserInteractionEnabled = true;
+            _originalSuperview.Add(mainView);
+            _originalSuperview = null;
+            MainViewController = null;
+            _gestureRecognizerView.RemoveFromSuperview();
+            _gestureRecognizerView = null;
+            IsMenuOpen = false;
+            transitionContext.CompleteTransition(true);
+            menuView.RemoveFromSuperview();
         }
 
         public void MenuOrientationChanged()
@@ -110,6 +145,10 @@ namespace SideMenuApp.SideMenu
             MainViewController.View.Transform = CGAffineTransform.MakeIdentity();
             MainViewController.View.Frame = MainViewController.View.Superview.Bounds;
             ShowMenuAnimationActions(MainViewController.View);
+
+            //Also need to update bounds of gestureRecognizer view
+            InitGestureRecognizerViewBounds(MainViewController.View);
+
         }
 
         private void ShowMenuAnimationActions(UIView view)
@@ -132,9 +171,57 @@ namespace SideMenuApp.SideMenu
             view.Transform = t;
         }
 
+        private void InitGestureRecognizerView(UIView mainView, UIView container)
+        {
+            _gestureRecognizerView = new UIView();
+            InitGestureRecognizerViewBounds(mainView);
+            _gestureRecognizerView.AddGestureRecognizer(new UITapGestureRecognizer(CloseMenu));
+            _gestureRecognizerView.AddGestureRecognizer(new UIPanGestureRecognizer(HandlePanGesture));
+            container.InsertSubviewAbove(_gestureRecognizerView, mainView);
+        }
 
+        private void InitGestureRecognizerViewBounds(UIView mainView)
+        {
+            _gestureRecognizerView.Transform = mainView.Transform;
+            _gestureRecognizerView.Bounds = mainView.Bounds;
+            _gestureRecognizerView.Center = mainView.Center;
+        }
 
+        void CloseMenu()
+        {
+            MainViewController.DismissViewController(true, null);
+        }
 
+        private void HandlePanGesture(UIPanGestureRecognizer recognizer)
+        {
+            var translation = recognizer.TranslationInView(recognizer.View);
+            //distance of pan gestire from start position
+            var distance = translation.X / UIScreen.MainScreen.Bounds.Width * -1;
+
+            switch (recognizer.State)
+            {
+                case UIGestureRecognizerState.Began:
+                    _panGestureIsActive = true;
+                    MainViewController.DismissViewController(true, null);
+                    break;
+                case UIGestureRecognizerState.Changed:
+                    var update = Math.Max(Math.Min((float)distance, 1.0f), 0.0f);
+                    UpdateInteractiveTransition(update);
+                    break;
+                default:
+                    _panGestureIsActive = false;
+                    var velocity = recognizer.VelocityInView(recognizer.View).X * -1;
+                    if (velocity >= 100 || velocity >= -50 && distance >= 0.5)
+                    {
+                        FinishInteractiveTransition();
+                    }
+                    else
+                    {
+                        CancelInteractiveTransition();
+                    }
+                    break;
+            }
+        }
 
         public double TransitionDuration(IUIViewControllerContextTransitioning transitionContext)
         {
@@ -153,5 +240,16 @@ namespace SideMenuApp.SideMenu
             return this;
         }
 
+        [Export("interactionControllerForPresentation:")]
+        IUIViewControllerInteractiveTransitioning GetInteractionControllerForPresentation(UIViewControllerAnimatedTransitioning animator)
+        {
+            return _panGestureIsActive ? this : null;
+        }
+
+        [Export("interactionControllerForDismissal:")]
+        IUIViewControllerInteractiveTransitioning GetInteractionControllerForDismissal(UIViewControllerAnimatedTransitioning animator)
+        {
+            return _panGestureIsActive ? this : null;
+        }
     }
 }
