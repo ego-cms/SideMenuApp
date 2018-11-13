@@ -132,6 +132,8 @@
     <Compile Include="SaleViewController.designer.cs">
       <DependentUpon>SaleViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="SideMenu\ISideMenuNavigationController.cs" />
+    <Compile Include="SideMenu\SideMenuInitializationException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

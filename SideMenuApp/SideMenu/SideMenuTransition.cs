@@ -1,4 +1,5 @@
 ﻿using System;
+using CoreAnimation;
 using CoreGraphics;
 using Foundation;
 using UIKit;
@@ -48,18 +49,30 @@ namespace SideMenuApp.SideMenu
             container.AddSubview(fromViewController.View);
             container.AddSubview(toViewController.View);
 
+            UIView.Animate(TransitionDurationTime, 0.0f, UIViewAnimationOptions.CurveEaseOut, () =>
+            {
+                //offset to the right
+                ShowMenuOffsetAnimationAction(toViewController.View);
+
+            }, null);
+
+            //Need separate timing function for scaling
+            CATransaction.Begin();
+            CATransaction.AnimationTimingFunction = new CAMediaTimingFunction(0.25f, 0.1f, 0.25f, 1);
+
             UIView.Animate(TransitionDurationTime, () =>
             {
                 //scaling for target view
-                var transform = CGAffineTransform.MakeScale(_targetViewControllerEndScale, _targetViewControllerEndScale);
-                transform.Translate(UIScreen.MainScreen.Bounds.Width * _targetViewControllerOffset, 0);
-                toViewController.View.Transform = transform;
+                ShowMenuScaleAnimationAction(toViewController.View);
             }, () =>
             {
                 container.UserInteractionEnabled = true;
                 IsMenuOpen = true;
                 transitionContext.CompleteTransition(true);
             });
+
+            CATransaction.Commit();
+
         }
 
         private void HideMenu(IUIViewControllerContextTransitioning transitionContext, UIView container, UIViewController fromViewController, UIViewController toViewController)
@@ -76,12 +89,51 @@ namespace SideMenuApp.SideMenu
             {
                 container.UserInteractionEnabled = true;
                 _originalSuperview.Add(mainView);
+                _originalSuperview = null;
                 MainViewController = null;
                 IsMenuOpen = false;
                 transitionContext.CompleteTransition(true);
                 menuView.RemoveFromSuperview();
             });
         }
+
+        public void MenuOrientationChanged()
+        {
+            if (MainViewController == null)
+            {
+                Console.WriteLine("Menu is closed no need to handle orientation changes");
+                return;
+            }
+
+            //After device rotation main view's position will be wrongly translated
+            //Reset Main view's transform and bounds, and set to values that will be correct after show animation
+            MainViewController.View.Transform = CGAffineTransform.MakeIdentity();
+            MainViewController.View.Frame = MainViewController.View.Superview.Bounds;
+            ShowMenuAnimationActions(MainViewController.View);
+        }
+
+        private void ShowMenuAnimationActions(UIView view)
+        {
+            ShowMenuScaleAnimationAction(view);
+            ShowMenuOffsetAnimationAction(view);
+        }
+
+        private void ShowMenuScaleAnimationAction(UIView view)
+        {
+            var t = view.Transform;
+            t.Scale(_targetViewControllerEndScale, _targetViewControllerEndScale);
+            view.Transform = t;
+        }
+
+        private void ShowMenuOffsetAnimationAction(UIView view)
+        {
+            var t = view.Transform;
+            t.Translate(UIScreen.MainScreen.Bounds.Width * _targetViewControllerOffset, 0);
+            view.Transform = t;
+        }
+
+
+
 
 
         public double TransitionDuration(IUIViewControllerContextTransitioning transitionContext)

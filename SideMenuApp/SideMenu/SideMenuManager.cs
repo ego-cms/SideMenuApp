@@ -21,10 +21,11 @@ namespace SideMenuApp.SideMenu
 
         private SideMenuManager()
         {
+            _transition = new SideMenuTransition();
         }
 
-        SideMenuNavigationController _menuController;
-        public SideMenuNavigationController MenuController
+        ISideMenuNavigationController _menuController;
+        public ISideMenuNavigationController MenuController
         {
             get
             {
@@ -32,20 +33,49 @@ namespace SideMenuApp.SideMenu
                 {
                     Console.WriteLine("SideMenuManager: Creating SideMenuNavigationController from MenuController getter");
                     _menuController = CreateMenuController();
+                    SetupController(_menuController);
                 }
                 return _menuController;
             }
+            set
+            {
+                _menuController = value;
+                SetupController(_menuController);
+            }
+
         }
 
         private SideMenuNavigationController CreateMenuController()
         {
             var menuController = new SideMenuNavigationController();
-            _transition = new SideMenuTransition();
-            menuController.TransitioningDelegate = _transition;
-            menuController.ModalPresentationStyle = UIModalPresentationStyle.Custom;
-
             return menuController;
         }
+
+        private void SetupController(ISideMenuNavigationController menuController)
+        {
+            SetupUIViewController(menuController);
+            menuController.OrientationChanged += MenuOrientationChanged;
+        }
+
+        private void SetupUIViewController(ISideMenuNavigationController menuController)
+        {
+            if (menuController is UIViewController vc)
+            {
+                vc.TransitioningDelegate = _transition;
+                vc.ModalPresentationStyle = UIModalPresentationStyle.Custom;
+            }
+            else
+            {
+                throw new SideMenuInitializationException($"Menu must be {nameof(UIViewController)} type");
+            }
+        }
+
+        void MenuOrientationChanged(object sender, SideMenuNavigationControllerOrientationChangedEventArgs e)
+        {
+            e.Coordinator.AnimateAlongsideTransition((IUIViewControllerTransitionCoordinator) => _transition.MenuOrientationChanged(),
+                                                     null);
+        }
+
 
         /// <summary>
         /// Push UIViewController when menu in open state
@@ -69,6 +99,5 @@ namespace SideMenuApp.SideMenu
 
             navigationVC.PushViewController(viewController, false);
         }
-
     }
 }
