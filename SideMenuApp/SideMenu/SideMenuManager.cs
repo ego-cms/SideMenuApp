@@ -72,8 +72,8 @@ namespace SideMenuApp.SideMenu
 
         void MenuOrientationChanged(object sender, SideMenuNavigationControllerOrientationChangedEventArgs e)
         {
-            e.Coordinator.AnimateAlongsideTransition((IUIViewControllerTransitionCoordinator) => _transition.MenuOrientationChanged(),
-                                                     null);
+            e.Coordinator.AnimateAlongsideTransition((IUIViewControllerTransitionCoordinator) => _transition.MenuOrientationWillChange(),
+                                                     (IUIViewControllerTransitionCoordinator) => _transition.MenuOrientationDidChange());
         }
 
 

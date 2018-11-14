@@ -14,6 +14,9 @@ namespace SideMenuApp.SideMenu
         private double TransitionDurationTime { get; set; } = 0.5f;
         private UIView _originalSuperview;
         private UIView _gestureRecognizerView;
+        private CALayer _shadowLayer;
+        double _shadowLayerAnimationTime;
+
         bool _panGestureIsActive;
 
         /// <summary>
@@ -45,17 +48,22 @@ namespace SideMenuApp.SideMenu
             }
         }
 
+        #region Menu open/close animations
+
         private void ShowMenu(IUIViewControllerContextTransitioning transitionContext, UIView container, UIViewController fromViewController, UIViewController toViewController)
         {
             //Adding views to transition view
             container.AddSubview(fromViewController.View);
             container.AddSubview(toViewController.View);
+            //Adding layer with shadow
+            CreateShadowLayer(container, toViewController);
 
             UIView.Animate(TransitionDurationTime, 0.0f, UIViewAnimationOptions.CurveEaseOut, () =>
             {
                 //offset to the right
                 ShowMenuOffsetAnimationAction(toViewController.View);
-
+                //animation for layer offset
+                ShowMenuOffsetShadowLayerAnimation();
             }, null);
 
             //Need separate timing function for scaling
@@ -66,6 +74,8 @@ namespace SideMenuApp.SideMenu
             {
                 //scaling for target view
                 ShowMenuScaleAnimationAction(toViewController.View);
+                //animation for layer scaling
+                ShowMenuScaleShadowLayerAnimation();
             }, () =>
             {
                 container.UserInteractionEnabled = true;
@@ -84,18 +94,25 @@ namespace SideMenuApp.SideMenu
 
             container.AddSubview(menuView);
             container.AddSubview(mainView);
+            //move mainView layer above shadow layer
+            mainView.Layer.ZPosition = 2;
+            //move shadow layer below mainView, but above other layers
+            _shadowLayer.ZPosition = 1;
+
             //Need separate handling when interactive transition
             if (_panGestureIsActive)
             {
                 CATransaction.Begin();
+                HideMenuLayerAnimation(CAMediaTimingFunction.Linear);
                 UIView.Animate(TransitionDurationTime, TransitionDurationTime, UIViewAnimationOptions.CurveLinear, () =>
                 {
-                    mainView.Transform = CGAffineTransform.MakeIdentity();
+                    HideMenuAnimation(mainView);
                 }, () =>
                 {
                     if (transitionContext.TransitionWasCancelled)
                     {
                         transitionContext.CompleteTransition(false);
+                        _shadowLayer.ZPosition = 1;
                         container.UserInteractionEnabled = true;
                         container.BringSubviewToFront(_gestureRecognizerView);
                     }
@@ -108,31 +125,169 @@ namespace SideMenuApp.SideMenu
             }
             else
             {
+
+                HideMenuLayerAnimation();
                 UIView.Animate(TransitionDurationTime, () =>
                 {
-                    mainView.Transform = CGAffineTransform.MakeIdentity();
+                    HideMenuAnimation(mainView);
                 }, () =>
                 {
                     HideMenuComplete(transitionContext, container, menuView, mainView);
                 });
             }
-
         }
 
-        private void HideMenuComplete(IUIViewControllerContextTransitioning transitionContext, UIView container, UIView menuView, UIView mainView)
+        #endregion
+
+        #region Shadow layer
+
+        void CreateShadowLayer(UIView container, UIViewController toViewController)
         {
-            container.UserInteractionEnabled = true;
-            _originalSuperview.Add(mainView);
-            _originalSuperview = null;
-            MainViewController = null;
-            _gestureRecognizerView.RemoveFromSuperview();
-            _gestureRecognizerView = null;
-            IsMenuOpen = false;
-            transitionContext.CompleteTransition(true);
-            menuView.RemoveFromSuperview();
+            //Create layer with shadow parameters
+            _shadowLayer = new CALayer
+            {
+                Frame = toViewController.View.Frame,
+                ShadowRadius = 15.0f,
+                ShadowOpacity = 0.3f,
+                ShadowColor = UIColor.Black.CGColor,
+                BackgroundColor = UIColor.Black.CGColor,
+            };
+            container.Layer.InsertSublayer(_shadowLayer, 1);
         }
 
-        public void MenuOrientationChanged()
+        private void ShowMenuShadowLayerActions(UIView view)
+        {
+            //Hide layer because it's solid color will be visible during orientation translation
+            _shadowLayer.Hidden = true;
+            //Reset layer to it's original state
+            _shadowLayer.RemoveAllAnimations();
+            _shadowLayer.Transform = CATransform3D.Identity;
+
+            //Reapply all layer's effects again
+            _shadowLayer.Frame = view.Frame;
+            _shadowLayer.Transform = _shadowLayer.Transform.Scale(0.8f, 0.8f, 1.0f);
+            var f = _shadowLayer.Frame;
+            f.X += UIScreen.MainScreen.Bounds.Width * _targetViewControllerOffset;
+            _shadowLayer.Frame = f;
+        }
+
+        void ShowMenuScaleShadowLayerAnimation()
+        {
+            //Need two separate animations for scaling x & y
+            //Array crashes when trying to set ZPosition
+            var group = new CAAnimationGroup();
+            var animationScaleX = new CABasicAnimation();
+            animationScaleX.KeyPath = new NSString("transform.scale.x");
+            animationScaleX.From = NSValue.FromObject(1.0f);
+            animationScaleX.To = NSValue.FromObject(0.8f);
+
+            var animationScaleY = new CABasicAnimation();
+            animationScaleY.KeyPath = new NSString("transform.scale.y");
+            animationScaleY.From = NSValue.FromObject(1.0f);
+            animationScaleY.To = NSValue.FromObject(0.8f);
+            group.Duration = TransitionDurationTime;
+            group.FillMode = CAFillMode.Forwards;
+            group.RemovedOnCompletion = false;
+            group.TimingFunction = new CAMediaTimingFunction(0.25f, 0.1f, 0.25f, 1);
+            group.Animations = new[] { animationScaleX, animationScaleY };
+
+            _shadowLayer.AddAnimation(group, "ShowScaleLayerAnimation");
+        }
+
+        void ShowMenuOffsetShadowLayerAnimation()
+        {
+            var f = _shadowLayer.Frame;
+            var animationOffset = new CABasicAnimation();
+            animationOffset.KeyPath = new NSString("position");
+            animationOffset.From = NSValue.FromCGPoint(new CGPoint(f.GetMidX(), f.GetMidY()));
+            animationOffset.To = NSValue.FromCGPoint(new CGPoint(f.GetMidX() + UIScreen.MainScreen.Bounds.Width * _targetViewControllerOffset, f.GetMidY()));
+            animationOffset.Duration = TransitionDurationTime;
+            animationOffset.FillMode = CAFillMode.Forwards;
+            animationOffset.RemovedOnCompletion = false;
+            animationOffset.TimingFunction = CAMediaTimingFunction.FromName(CAMediaTimingFunction.EaseOut);
+            //Must set layer frame explicitly, to animate it back when menu will hide
+            f.X += UIScreen.MainScreen.Bounds.Width * _targetViewControllerOffset;
+            _shadowLayer.Frame = f;
+
+            _shadowLayer.AddAnimation(animationOffset, "ShowOffsetLayerAnimation");
+        }
+
+        void ShowMenuCancelLayerAnimation(double offset)
+        {
+            var group = new CAAnimationGroup();
+
+            var animationOffset = new CABasicAnimation();
+            animationOffset.KeyPath = new NSString("position");
+            //Calculate position of shadow layer's X when animation was cancelled
+            var offsetX = UIScreen.MainScreen.Bounds.Width * _targetViewControllerOffset;
+            var originalX = _shadowLayer.Frame.GetMidX() - ((offset / TransitionDurationTime) * offsetX);
+            //Start animatiom from cancelled X position 
+            animationOffset.From = NSValue.FromCGPoint(new CGPoint(originalX, _shadowLayer.Frame.GetMidY()));
+            //to position when animation began
+            animationOffset.To = NSValue.FromCGPoint(new CGPoint(_shadowLayer.Frame.GetMidX(), _shadowLayer.Frame.GetMidY()));
+
+            var scaleDiff = _targetViewControllerInitialScale - _targetViewControllerEndScale;
+            //scaling of view when animation was cancelled
+            var cancelledScalePosition = _targetViewControllerInitialScale - (scaleDiff - (offset / TransitionDurationTime) * scaleDiff);
+
+            //Animate x/y positions from size when was cancelled
+            //To size before interaction begin
+            var animationScaleX = new CABasicAnimation();
+            animationScaleX.KeyPath = new NSString("transform.scale.x");
+            animationScaleX.From = NSValue.FromObject(cancelledScalePosition);
+            animationScaleX.To = NSValue.FromObject(_targetViewControllerEndScale);
+
+            var animationScaleY = new CABasicAnimation();
+            animationScaleY.KeyPath = new NSString("transform.scale.y");
+            animationScaleY.From = NSValue.FromObject(cancelledScalePosition);
+            animationScaleY.To = NSValue.FromObject(_targetViewControllerEndScale);
+
+            group.TimingFunction = CAMediaTimingFunction.FromName(CAMediaTimingFunction.Linear);
+
+            //It's pretty much random
+            //with small animation time, it's looks good 
+            //With long animation time it's not really fit, but still not so bad
+            group.Duration = offset / 6;
+            group.FillMode = CAFillMode.Forwards;
+            group.RemovedOnCompletion = false;
+            group.Animations = new[] { animationScaleX, animationScaleY, animationOffset };
+
+            _shadowLayer.AddAnimation(group, "ShowScaleLayerAnimation");
+        }
+
+
+        void HideMenuLayerAnimation(NSString timingFunctionName = null)
+        {
+            CGRect f = _shadowLayer.Frame;
+            var group = new CAAnimationGroup();
+            var animationOffset = new CABasicAnimation();
+            animationOffset.KeyPath = new NSString("position");
+            animationOffset.From = NSValue.FromCGPoint(new CGPoint(f.GetMidX(), f.GetMidY()));
+            animationOffset.To = NSValue.FromCGPoint(new CGPoint(f.GetMidX() - UIScreen.MainScreen.Bounds.Width * _targetViewControllerOffset, f.GetMidY()));
+
+            var animationScaleX = new CABasicAnimation();
+            animationScaleX.KeyPath = new NSString("transform.scale.x");
+            animationScaleX.From = NSValue.FromObject(0.8f);
+            animationScaleX.To = NSValue.FromObject(1.0f);
+
+            var animationScaleY = new CABasicAnimation();
+            animationScaleY.KeyPath = new NSString("transform.scale.y");
+            animationScaleY.From = NSValue.FromObject(0.8f);
+            animationScaleY.To = NSValue.FromObject(1.0f);
+
+            //during pan gesture animation curve should be linear
+            //In other cases EaseInOut
+            group.TimingFunction = CAMediaTimingFunction.FromName(timingFunctionName ?? CAMediaTimingFunction.EaseInEaseOut);
+            group.Duration = TransitionDurationTime;
+            group.Animations = new[] { animationOffset, animationScaleX, animationScaleY };
+
+            _shadowLayer.AddAnimation(group, "HideShadowLayerAnimation");
+        }
+        #endregion
+
+        #region Rotation handling
+
+        public void MenuOrientationWillChange()
         {
             if (MainViewController == null)
             {
@@ -148,11 +303,23 @@ namespace SideMenuApp.SideMenu
 
             //Also need to update bounds of gestureRecognizer view
             InitGestureRecognizerViewBounds(MainViewController.View);
-
         }
+
+        public void MenuOrientationDidChange()
+        {
+            //Show shadow layer again
+            _shadowLayer.Hidden = false;
+        }
+
+        #endregion
+
+
+        #region View animation actions
 
         private void ShowMenuAnimationActions(UIView view)
         {
+            ShowMenuShadowLayerActions(view);
+
             ShowMenuScaleAnimationAction(view);
             ShowMenuOffsetAnimationAction(view);
         }
@@ -166,10 +333,38 @@ namespace SideMenuApp.SideMenu
 
         private void ShowMenuOffsetAnimationAction(UIView view)
         {
-            var t = view.Transform;
-            t.Translate(UIScreen.MainScreen.Bounds.Width * _targetViewControllerOffset, 0);
-            view.Transform = t;
+            var f = view.Frame;
+            f.X += UIScreen.MainScreen.Bounds.Width * _targetViewControllerOffset;
+            view.Frame = f;
         }
+
+        void HideMenuAnimation(UIView mainView)
+        {
+            mainView.Transform = CGAffineTransform.MakeIdentity();
+            var f = mainView.Frame;
+            f.X -= UIScreen.MainScreen.Bounds.Width * _targetViewControllerOffset;
+            mainView.Frame = f;
+        }
+
+        #endregion
+
+
+        private void HideMenuComplete(IUIViewControllerContextTransitioning transitionContext, UIView container, UIView menuView, UIView mainView)
+        {
+            container.UserInteractionEnabled = true;
+            _originalSuperview.Add(mainView);
+            _originalSuperview = null;
+            MainViewController = null;
+            _gestureRecognizerView.RemoveFromSuperview();
+            _gestureRecognizerView = null;
+            _shadowLayer.RemoveFromSuperLayer();
+            _shadowLayer = null;
+            IsMenuOpen = false;
+            transitionContext.CompleteTransition(true);
+            menuView.RemoveFromSuperview();
+        }
+
+        #region Gesture recognizers
 
         private void InitGestureRecognizerView(UIView mainView, UIView container)
         {
@@ -222,6 +417,76 @@ namespace SideMenuApp.SideMenu
                     break;
             }
         }
+
+        #endregion
+
+        #region Layer interactive transition
+
+        public void StartLayerInteractiveTransition(CALayer layer)
+        {
+            _shadowLayerAnimationTime = layer.ConvertTimeFromLayer(0.0f, null);
+            //Reset layer's speed for operating TimeOffset through interaction updates
+            layer.Speed = 0.0f;
+            layer.TimeOffset = _shadowLayerAnimationTime;
+        }
+
+        public void FinishLayerInteractiveTransition(CALayer layer)
+        {
+            var time = layer.TimeOffset;
+            //Reset layers properties
+            layer.Speed = 1.0f;
+            layer.TimeOffset = 0.0f;
+            layer.BeginTime = 0.0f;
+            var timeSincePause = layer.ConvertTimeFromLayer(0.0f, null) - time;
+            layer.BeginTime = timeSincePause;
+        }
+
+        public void UpdateLayerInteractiveTransition(CALayer layer, nfloat percentComplete)
+        {
+            //Manually update TimeOffset for layer animation during interaction
+            layer.TimeOffset = _shadowLayerAnimationTime + TransitionDurationTime * percentComplete;
+        }
+
+        public void CancelLayerInteractiveTransition(CALayer layer)
+        {
+            layer.Speed = 1.0f;
+            //Animate changes back when cancelling
+            ShowMenuCancelLayerAnimation(layer.TimeOffset);
+            layer.BeginTime = 0.0f;
+            layer.TimeOffset = 0.0f;
+        }
+
+
+        #endregion
+
+        #region Interactive transition overrides
+
+        public override void StartInteractiveTransition(IUIViewControllerContextTransitioning transitionContext)
+        {
+            base.StartInteractiveTransition(transitionContext);
+            StartLayerInteractiveTransition(_shadowLayer);
+        }
+
+        public override void UpdateInteractiveTransition(nfloat percentComplete)
+        {
+            base.UpdateInteractiveTransition(percentComplete);
+            UpdateLayerInteractiveTransition(_shadowLayer, percentComplete);
+        }
+
+        public override void FinishInteractiveTransition()
+        {
+            base.FinishInteractiveTransition();
+            FinishLayerInteractiveTransition(_shadowLayer);
+        }
+
+        public override void CancelInteractiveTransition()
+        {
+            base.CancelInteractiveTransition();
+            CancelLayerInteractiveTransition(_shadowLayer);
+        }
+
+        #endregion
+
 
         public double TransitionDuration(IUIViewControllerContextTransitioning transitionContext)
         {
