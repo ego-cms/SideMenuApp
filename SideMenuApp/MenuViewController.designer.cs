@@ -13,6 +13,12 @@ namespace SideMenuApp
 	partial class MenuViewController
 	{
 		[Outlet]
+		UIKit.UIImageView MenuImage { get; set; }
+
+		[Outlet]
+		UIKit.UILabel MenuName { get; set; }
+
+		[Outlet]
 		UIKit.UITableView MenuTableView { get; set; }
 		
 		void ReleaseDesignerOutlets ()
@@ -20,6 +26,16 @@ namespace SideMenuApp
 			if (MenuTableView != null) {
 				MenuTableView.Dispose ();
 				MenuTableView = null;
+			}
+
+			if (MenuName != null) {
+				MenuName.Dispose ();
+				MenuName = null;
+			}
+
+			if (MenuImage != null) {
+				MenuImage.Dispose ();
+				MenuImage = null;
 			}
 		}
 	}

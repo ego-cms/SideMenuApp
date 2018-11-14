@@ -1,4 +1,4 @@
-// WARNING
+﻿// WARNING
 //
 // This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
@@ -12,9 +12,15 @@ namespace SideMenuApp
 	[Register ("SaleViewController")]
 	partial class SaleViewController
 	{
+		[Outlet]
+		UIKit.UIImageView BGImage { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (BGImage != null) {
+				BGImage.Dispose ();
+				BGImage = null;
+			}
 		}
 	}
 }

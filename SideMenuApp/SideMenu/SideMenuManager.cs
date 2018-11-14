@@ -13,6 +13,33 @@ namespace SideMenuApp.SideMenu
         /// <value><c>true</c> if is menu open; otherwise, <c>false</c>.</value>
         public bool IsMenuOpen { get => _transition?.IsMenuOpen ?? false; }
 
+        /// <summary>
+        /// Event which notifies that transition is going to play it's appearing animations
+        /// </summary>
+        public event EventHandler MenuWillAppear;
+        /// <summary>
+        /// Event which notifies that transition is finished playing it's appearing animations
+        /// </summary>
+        public event EventHandler MenuDidAppear;
+        /// <summary>
+        /// Event which notifies that transition is going to play it's disappearing animations
+        /// </summary>
+        public event EventHandler MenuWillDisappear;
+        /// <summary>
+        /// Event which notifies that transition is finished playing it's disappearing animations
+        /// </summary>
+        public event EventHandler MenuDidDisappear;
+        /// <summary>
+        /// Gets or sets the duration of the transition.
+        /// </summary>
+        /// <value>The duration of the transition.</value>
+        public double TransitionDuration
+        {
+            get => _transition.TransitionDurationTime;
+            set => _transition.TransitionDurationTime = value;
+        }
+
+
         private static SideMenuManager _instance = new SideMenuManager();
         public static SideMenuManager Instance
         {
@@ -21,7 +48,7 @@ namespace SideMenuApp.SideMenu
 
         private SideMenuManager()
         {
-            _transition = new SideMenuTransition();
+            CreateTranistion();
         }
 
         ISideMenuNavigationController _menuController;
@@ -76,6 +103,14 @@ namespace SideMenuApp.SideMenu
                                                      (IUIViewControllerTransitionCoordinator) => _transition.MenuOrientationDidChange());
         }
 
+        private void CreateTranistion()
+        {
+            _transition = new SideMenuTransition();
+            _transition.MenuDidAppear += (object sender, EventArgs e) => MenuDidAppear?.Invoke(this, e);
+            _transition.MenuWillAppear += (object sender, EventArgs e) => MenuWillAppear?.Invoke(this, e);
+            _transition.MenuDidDisappear += (object sender, EventArgs e) => MenuDidDisappear?.Invoke(this, e);
+            _transition.MenuWillDisappear += (object sender, EventArgs e) => MenuWillDisappear?.Invoke(this, e);
+        }
 
         /// <summary>
         /// Push UIViewController when menu in open state

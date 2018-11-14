@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="rPa-UQ-BKX">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="dhH-LF-xwU">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -9,26 +9,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Navigation Controller-->
-        <scene sceneID="w0z-AK-BnF">
-            <objects>
-                <navigationController id="rPa-UQ-BKX" sceneMemberID="viewController">
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="bkJ-tH-4Hi">
-                        <rect key="frame" x="0.0" y="20" width="375" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="wss-5k-ecC"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="7QH-ox-JvO" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-582" y="117"/>
-        </scene>
         <!--Home View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController storyboardIdentifier="HomeViewController" id="BYZ-38-t0r" customClass="HomeViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="HomeViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="BYZ-38-t0r" customClass="HomeViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -36,48 +20,244 @@
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="HomeBG" translatesAutoresizingMaskIntoConstraints="NO" id="DE1-IO-Vcj">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                            </imageView>
+                        </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="DE1-IO-Vcj" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="JrY-hH-nKc"/>
+                            <constraint firstAttribute="trailing" secondItem="DE1-IO-Vcj" secondAttribute="trailing" id="ZzQ-Wm-1RJ"/>
+                            <constraint firstItem="DE1-IO-Vcj" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="hqg-B0-Sfk"/>
+                            <constraint firstAttribute="bottom" secondItem="DE1-IO-Vcj" secondAttribute="bottom" id="u8h-F2-BRp"/>
+                        </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="oZ6-bv-hDD"/>
+                    <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="zl0-ky-0NE"/>
+                    <connections>
+                        <outlet property="BGImage" destination="DE1-IO-Vcj" id="86g-YZ-aBR"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="669.60000000000002" y="133.5832083958021"/>
         </scene>
         <!--Search View Controller-->
-        <scene sceneID="EeN-6M-b1J">
+        <scene sceneID="ydx-8O-1al">
             <objects>
-                <viewController storyboardIdentifier="SearchViewController" id="lOm-sU-dPq" customClass="SearchViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="SearchViewController" id="3GB-zD-TB5" customClass="SearchViewController" sceneMemberID="viewController">
                     <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="fFd-CB-GaY"/>
-                        <viewControllerLayoutGuide type="bottom" id="kYH-Oa-jBM"/>
+                        <viewControllerLayoutGuide type="top" id="Oco-AI-GhV"/>
+                        <viewControllerLayoutGuide type="bottom" id="6cB-A7-78O"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="nXs-Mo-X4r">
+                    <view key="view" contentMode="scaleToFill" id="ozC-EC-Ksj">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="1" green="0.097188070672050153" blue="0.89788760085221253" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="SearchBG" translatesAutoresizingMaskIntoConstraints="NO" id="REU-hS-pks">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="REU-hS-pks" firstAttribute="top" secondItem="ozC-EC-Ksj" secondAttribute="top" id="31x-jy-MpI"/>
+                            <constraint firstAttribute="bottom" secondItem="REU-hS-pks" secondAttribute="bottom" id="Z2T-LE-0Ag"/>
+                            <constraint firstAttribute="trailing" secondItem="REU-hS-pks" secondAttribute="trailing" id="ewb-EN-ErS"/>
+                            <constraint firstItem="REU-hS-pks" firstAttribute="leading" secondItem="ozC-EC-Ksj" secondAttribute="leading" id="pFv-6a-s1B"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="BGImage" destination="REU-hS-pks" id="8YR-5z-rQj"/>
+                    </connections>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="QgL-JU-jeF" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="4KF-3I-3bw" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="141" y="768"/>
+            <point key="canvasLocation" x="605.84707646176912" y="906.39999999999998"/>
         </scene>
         <!--Sale View Controller-->
-        <scene sceneID="BF7-3N-ZvA">
+        <scene sceneID="xLA-4U-8aD">
             <objects>
-                <viewController storyboardIdentifier="SaleViewController" id="JGm-GG-x5r" customClass="SaleViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="SaleViewController" id="VFT-Nw-QY8" customClass="SaleViewController" sceneMemberID="viewController">
                     <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="gmd-es-lTr"/>
-                        <viewControllerLayoutGuide type="bottom" id="lSB-pm-ttT"/>
+                        <viewControllerLayoutGuide type="top" id="mvr-dI-xJO"/>
+                        <viewControllerLayoutGuide type="bottom" id="kHk-5e-5Wa"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="1hF-UG-gqV">
+                    <view key="view" contentMode="scaleToFill" id="Qmj-GY-Zz6">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="0.077773453556099437" green="1" blue="0.99659893232983898" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="SaleBG" translatesAutoresizingMaskIntoConstraints="NO" id="wBQ-BW-q9x">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="wBQ-BW-q9x" firstAttribute="top" secondItem="Qmj-GY-Zz6" secondAttribute="top" id="4d5-7Q-bgk"/>
+                            <constraint firstAttribute="bottom" secondItem="wBQ-BW-q9x" secondAttribute="bottom" id="9c9-LV-tsK"/>
+                            <constraint firstItem="wBQ-BW-q9x" firstAttribute="leading" secondItem="Qmj-GY-Zz6" secondAttribute="leading" id="La6-QW-LcZ"/>
+                            <constraint firstAttribute="trailing" secondItem="wBQ-BW-q9x" secondAttribute="trailing" id="Xe0-lV-MZv"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="BGImage" destination="wBQ-BW-q9x" id="xV0-fi-5Si"/>
+                    </connections>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="GGG-nw-xOb" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="KQA-Y5-TON" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="164" y="1443"/>
+            <point key="canvasLocation" x="583" y="1619"/>
+        </scene>
+        <!--Catalog View Controller-->
+        <scene sceneID="lqb-rb-KuK">
+            <objects>
+                <viewController storyboardIdentifier="CatalogViewController" id="dZD-4D-I07" customClass="CatalogViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Cfx-wt-lVm"/>
+                        <viewControllerLayoutGuide type="bottom" id="EO7-r7-hET"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="u92-1P-rSW">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="CatalogBG" translatesAutoresizingMaskIntoConstraints="NO" id="s2J-Pe-dlT">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="s2J-Pe-dlT" secondAttribute="bottom" id="FZ4-on-QKY"/>
+                            <constraint firstItem="s2J-Pe-dlT" firstAttribute="leading" secondItem="u92-1P-rSW" secondAttribute="leading" id="WMG-Jc-ix5"/>
+                            <constraint firstItem="s2J-Pe-dlT" firstAttribute="top" secondItem="u92-1P-rSW" secondAttribute="top" id="und-RX-cgm"/>
+                            <constraint firstAttribute="trailing" secondItem="s2J-Pe-dlT" secondAttribute="trailing" id="xe5-xj-DJC"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="BGImage" destination="s2J-Pe-dlT" id="74i-zW-KIK"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="AfK-Ps-pEC" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="560" y="2376"/>
+        </scene>
+        <!--Orders View Controller-->
+        <scene sceneID="skT-eU-o8D">
+            <objects>
+                <viewController storyboardIdentifier="OrdersViewController" id="Y3D-uk-vez" customClass="OrdersViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="gIG-Mz-JRW"/>
+                        <viewControllerLayoutGuide type="bottom" id="j4M-1t-9HE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="hRW-Lz-mcZ">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="OrderBG" translatesAutoresizingMaskIntoConstraints="NO" id="dq3-lc-YT5">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="dq3-lc-YT5" secondAttribute="bottom" id="7tu-1n-If9"/>
+                            <constraint firstAttribute="trailing" secondItem="dq3-lc-YT5" secondAttribute="trailing" id="AES-iS-gpP"/>
+                            <constraint firstItem="dq3-lc-YT5" firstAttribute="top" secondItem="hRW-Lz-mcZ" secondAttribute="top" id="Z4n-Dv-RR2"/>
+                            <constraint firstItem="dq3-lc-YT5" firstAttribute="leading" secondItem="hRW-Lz-mcZ" secondAttribute="leading" id="plh-8z-7jH"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="BGImage" destination="dq3-lc-YT5" id="QFt-r2-vdb"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="CEA-CG-HkB" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="583" y="3147"/>
+        </scene>
+        <!--Info View Controller-->
+        <scene sceneID="cxP-41-bzv">
+            <objects>
+                <viewController storyboardIdentifier="InfoViewController" id="Li8-Mq-RoR" customClass="InfoViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="nVB-Yu-hoA"/>
+                        <viewControllerLayoutGuide type="bottom" id="hWQ-YQ-wbj"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="vYM-w5-sE7">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="InfoBG" translatesAutoresizingMaskIntoConstraints="NO" id="z9z-rd-i9t">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="z9z-rd-i9t" secondAttribute="trailing" id="UHO-PQ-aK0"/>
+                            <constraint firstItem="z9z-rd-i9t" firstAttribute="top" secondItem="vYM-w5-sE7" secondAttribute="top" id="n09-Bt-xsn"/>
+                            <constraint firstAttribute="bottom" secondItem="z9z-rd-i9t" secondAttribute="bottom" id="uZ8-Sf-gZ4"/>
+                            <constraint firstItem="z9z-rd-i9t" firstAttribute="leading" secondItem="vYM-w5-sE7" secondAttribute="leading" id="yPJ-ic-bOg"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="BGImage" destination="z9z-rd-i9t" id="1ML-NN-5A4"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="kvn-o2-gcp" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="549" y="3900"/>
+        </scene>
+        <!--Settings View Controller-->
+        <scene sceneID="y95-pc-pas">
+            <objects>
+                <viewController storyboardIdentifier="SettingsViewController" id="cfX-Jp-cpP" customClass="SettingsViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="WQJ-nQ-zuC"/>
+                        <viewControllerLayoutGuide type="bottom" id="RhP-6z-DW4"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="mAA-iZ-Qbh">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="SettingsBG" translatesAutoresizingMaskIntoConstraints="NO" id="gIS-y1-78E">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="gIS-y1-78E" secondAttribute="trailing" id="C7t-ko-dnF"/>
+                            <constraint firstItem="gIS-y1-78E" firstAttribute="top" secondItem="mAA-iZ-Qbh" secondAttribute="top" id="KnV-Rl-BkF"/>
+                            <constraint firstAttribute="bottom" secondItem="gIS-y1-78E" secondAttribute="bottom" id="iSk-yN-YED"/>
+                            <constraint firstItem="gIS-y1-78E" firstAttribute="leading" secondItem="mAA-iZ-Qbh" secondAttribute="leading" id="r0c-XT-Exy"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="BGImage" destination="gIS-y1-78E" id="haU-R3-zFE"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="KyP-D9-5p7" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="549" y="4649"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="xcz-7S-ypW">
+            <objects>
+                <navigationController id="dhH-LF-xwU" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="E3n-5w-v7X">
+                        <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="EUx-11-IjB"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="lFO-cP-6UD" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-641" y="134"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="CatalogBG" width="375" height="812"/>
+        <image name="HomeBG" width="375" height="812"/>
+        <image name="InfoBG" width="375" height="812"/>
+        <image name="OrderBG" width="375" height="812"/>
+        <image name="SaleBG" width="375" height="812"/>
+        <image name="SearchBG" width="375" height="812"/>
+        <image name="SettingsBG" width="375" height="812"/>
+    </resources>
 </document>

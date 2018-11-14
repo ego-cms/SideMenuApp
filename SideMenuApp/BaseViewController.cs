@@ -1,9 +1,11 @@
 ﻿using System;
+using CoreGraphics;
 using SideMenuApp.SideMenu;
 using UIKit;
+
 namespace SideMenuApp
 {
-    public class BaseViewController : UIViewController
+    public abstract class BaseViewController : UIViewController
     {
         public BaseViewController()
         {
@@ -29,11 +31,15 @@ namespace SideMenuApp
         {
             base.ViewDidLoad();
 
+            //Set transparent NavigationBar
             NavigationController.NavigationBar.SetBackgroundImage(new UIImage(), UIBarMetrics.Default);
             NavigationController.NavigationBar.ShadowImage = new UIImage();
             NavigationController.NavigationBar.Translucent = true;
             NavigationController.View.BackgroundColor = UIColor.Clear;
 
+            //Create custom button
+            //For standard UIBarButton with image iOS make deafult offset
+            //For avoid this create custom view with button within
             var navButton = new UIButton(UIButtonType.System);
             navButton.SetImage(UIImage.FromBundle("HamburgerIcon"), UIControlState.Normal);
             navButton.TintColor = UIColor.Black;
@@ -53,5 +59,20 @@ namespace SideMenuApp
                 PresentViewController(SideMenuManager.Instance.MenuController as UIViewController, true, null);
             }
         }
+
+        public override void ViewWillTransitionToSize(CGSize toSize, IUIViewControllerTransitionCoordinator coordinator)
+        {
+            base.ViewWillTransitionToSize(toSize, coordinator);
+
+            coordinator.AnimateAlongsideTransition((obj) =>
+            {
+                var orientation = UIApplication.SharedApplication.StatusBarOrientation;
+                var isLandscape = orientation == UIInterfaceOrientation.LandscapeLeft || orientation == UIInterfaceOrientation.LandscapeRight;
+                SetBackgroundImage(isLandscape);
+
+            },null);
+        }
+
+        public abstract void SetBackgroundImage(bool landscape);
     }
 }

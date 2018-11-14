@@ -11,13 +11,22 @@ namespace SideMenuApp.SideMenu
         private const float _targetViewControllerOffset = 0.5f;
         private const float _targetViewControllerInitialScale = 1.0f;
         private const float _targetViewControllerEndScale = 0.8f;
-        private double TransitionDurationTime { get; set; } = 0.5f;
         private UIView _originalSuperview;
         private UIView _gestureRecognizerView;
         private CALayer _shadowLayer;
         double _shadowLayerAnimationTime;
-
         bool _panGestureIsActive;
+
+        /// <summary>
+        /// Transition duration
+        /// </summary>
+        /// <value>The transition duration time.</value>
+        public double TransitionDurationTime { get; set; } = 0.5f;
+        public event EventHandler MenuWillAppear;
+        public event EventHandler MenuDidAppear;
+        public event EventHandler MenuWillDisappear;
+        public event EventHandler MenuDidDisappear;
+
 
         /// <summary>
         /// ViewController which starts current transition
@@ -38,12 +47,19 @@ namespace SideMenuApp.SideMenu
             var toViewController = transitionContext.GetViewControllerForKey(UITransitionContext.FromViewControllerKey);
             if (!IsMenuOpen)
             {
+                //if container changed orientation, menucontroller doesn't know about that
+                //we should update bounds for this case
+                fromViewController.View.Frame = container.Bounds;
+
+
                 _originalSuperview = toViewController.View.Superview;
                 MainViewController = toViewController;
+                MenuWillAppear?.Invoke(this, EventArgs.Empty);
                 ShowMenu(transitionContext, container, fromViewController, toViewController);
             }
             else
             {
+                MenuWillDisappear?.Invoke(this, EventArgs.Empty);
                 HideMenu(transitionContext, container, fromViewController, toViewController);
             }
         }
@@ -82,6 +98,7 @@ namespace SideMenuApp.SideMenu
                 IsMenuOpen = true;
                 InitGestureRecognizerView(toViewController.View, container);
                 transitionContext.CompleteTransition(true);
+                MenuDidAppear?.Invoke(this, EventArgs.Empty);
             });
 
             CATransaction.Commit();
@@ -313,7 +330,6 @@ namespace SideMenuApp.SideMenu
 
         #endregion
 
-
         #region View animation actions
 
         private void ShowMenuAnimationActions(UIView view)
@@ -348,7 +364,6 @@ namespace SideMenuApp.SideMenu
 
         #endregion
 
-
         private void HideMenuComplete(IUIViewControllerContextTransitioning transitionContext, UIView container, UIView menuView, UIView mainView)
         {
             container.UserInteractionEnabled = true;
@@ -362,6 +377,7 @@ namespace SideMenuApp.SideMenu
             IsMenuOpen = false;
             transitionContext.CompleteTransition(true);
             menuView.RemoveFromSuperview();
+            MenuDidDisappear?.Invoke(this, EventArgs.Empty);
         }
 
         #region Gesture recognizers

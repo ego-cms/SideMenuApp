@@ -15,17 +15,21 @@ namespace SideMenuApp
             Nib = UINib.FromName("TableMenuCell", NSBundle.MainBundle);
         }
 
-        protected TableMenuCell(IntPtr handle) : base(handle)
-        {
-            // Note: this .ctor should not contain any initialization logic.
-        }
-
         public string Title
         {
             get => Name.Text;
             set => Name.Text = value;
         }
 
+        public UIImage Icon
+        {
+            get => Image.Image;
+            set => Image.Image = value;
+        }
 
+        protected TableMenuCell(IntPtr handle) : base(handle)
+        {
+            // Note: this .ctor should not contain any initialization logic.
+        }
     }
 }

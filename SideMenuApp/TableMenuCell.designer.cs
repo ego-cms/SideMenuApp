@@ -1,4 +1,4 @@
-// WARNING
+﻿// WARNING
 //
 // This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
@@ -13,10 +13,18 @@ namespace SideMenuApp
 	partial class TableMenuCell
 	{
 		[Outlet]
+		UIKit.UIImageView Image { get; set; }
+
+		[Outlet]
 		UIKit.UILabel Name { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (Image != null) {
+				Image.Dispose ();
+				Image = null;
+			}
+
 			if (Name != null) {
 				Name.Dispose ();
 				Name = null;
